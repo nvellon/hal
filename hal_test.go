@@ -19,15 +19,18 @@ func TestLinkMarshal(t *testing.T) {
 }
 
 func TestLinkUnmarshal(t *testing.T) {
+	rel := "self"
+	href := "http://localhost/"
+
+	j := []byte(`{"` + rel + `":{"href":"` + href + `"}}`)
 	l := Link{}
-	j := []byte(`{"self":{"href":"http://localhost/"}}`)
 
 	err := json.Unmarshal(j, &l)
 	if err != nil {
 		t.Errorf("%s", err)
 	}
 
-	if l.Rel != "self" || l.Href != "http://localhost/" {
+	if l.Rel != rel || l.Href != href {
 		t.Errorf("Wrong json string: %s. Given struct: %s", j, l)
 	}
 }

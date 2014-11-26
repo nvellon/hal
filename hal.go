@@ -26,7 +26,7 @@ func (l Link) MarshalJSON() ([]byte, error) {
 }
 
 func (l *Link) UnmarshalJSON(b []byte) error {
-	var m map[string]*json.RawMessage
+	var m map[string]json.RawMessage
 
 	err := json.Unmarshal(b, &m)
 
@@ -34,17 +34,17 @@ func (l *Link) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	for key, value := range m {
-		l.Rel = string(key)
+	for rel, raw := range m {
+		l.Rel = rel
 
-		var ml map[string]*json.RawMessage
+		var ml map[string]string
 
-		err := json.Unmarshal(*value, &ml)
+		err := json.Unmarshal(raw, &ml)
 		if err != nil {
 			return err
 		}
 
-		l.Href = string(*ml["href"])
+		l.Href = string(ml["href"])
 	}
 
 	return nil
