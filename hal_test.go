@@ -34,3 +34,19 @@ func TestLinkUnmarshal(t *testing.T) {
 		t.Errorf("Wrong json string: %s. Given struct: %s", j, l)
 	}
 }
+
+func TestResourceMarshal(t *testing.T) {
+	expected := `{"_links":[{"self":{"href":"http://localhost/"}}],"_embedded":[{"_links":null,"_embedded":null}]}`
+	ll := []Link{Link{"self", "http://localhost/"}}
+	ee := []Resource{Resource{}}
+	r := Resource{ll, ee}
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s", r)
+	}
+}

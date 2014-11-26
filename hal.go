@@ -11,8 +11,8 @@ type (
 	}
 
 	Resource struct {
-		Links		[]Link
-		Embedded	[]Resource
+		Links		[]Link		`json:"_links"`
+		Embedded	[]Resource	`json:"_embedded"`
 	}
 )
 
