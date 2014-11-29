@@ -1,8 +1,8 @@
-package hal
+package gohal
 
 import (
-	"testing"
 	"encoding/json"
+	"testing"
 )
 
 func TestLinkMarshal(t *testing.T) {

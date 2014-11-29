@@ -1,16 +1,3 @@
-Gohal
-=====
-
-Go implementation of [HAL standard](http://stateless.co/hal_specification.html).
-
-This is a work in progress... Everything might/will change.
-
-Examples
---------
-
-Basic marshaling:
-
-```go
 package main
 
 import (
@@ -65,4 +52,3 @@ func main() {
 
 	fmt.Printf("%s", j)
 }
-```
