@@ -6,46 +6,46 @@ import (
 	"github.com/nvellon/gohal"
 )
 
-type Product struct {
-	gohal.Resource
-	Name string `json:"name"`
+type (
+	Category struct {
+		Code int
+		Name string
+	}
+
+	Product struct {
+		Code     int
+		Name     string
+		Price    int
+		Category Category
+	}
+)
+
+func (p Product) Encode() map[string]interface{} {
+	return map[string]interface{}{
+		"name":  p.Name,
+		"price": p.Price,
+	}
 }
 
-type Category struct {
-	gohal.Resource
-	Name string `json:"name"`
-}
-
-func (p *Product) ToResource(b []byte) error {
-	return nil
-}
-func (p *Product) ToMap() map[string]interface{} {
-	return nil
-}
-
-func (c *Category) ToResource(b []byte) error {
-	return nil
-}
-func (c *Category) ToMap() map[string]interface{} {
-	return nil
+func (c Category) Encode() map[string]interface{} {
+	return map[string]interface{}{
+		"name": c.Name,
+	}
 }
 
 func main() {
+	c := Category{1, "Some Category"}
+	p := Product{1, "Some Product", 10, c}
 
-	p := Product{}
-	p.Name = "some product"
+	// Creating HAL Resources
+	pr := gohal.NewResource(p, "http://some_host/products/some_product")
+	cr := gohal.NewResource(p.Category, "http://some_host/categories/some_category")
 
-	lp := gohal.NewLink("self", "http://localhost/products/some_product")
-	p.AddLink(&lp)
+	// Embeding category into product
+	pr.Embed(cr)
 
-	c := Category{}
-	c.Name = "some category"
-	lc := gohal.NewLink("self", "http://localhost/categories/some_category")
-	c.AddLink(&lc)
-
-	p.Embed(&c)
-
-	j, err := json.Marshal(p)
+	// JSON Encoding
+	j, err := json.Marshal(&pr)
 	if err != nil {
 		fmt.Printf("%s", err)
 	}
