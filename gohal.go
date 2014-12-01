@@ -91,6 +91,8 @@ func (r Resource) Encode() map[string]interface{} {
 	return mapped
 }
 
+// MarshalJSON is a Marshaler interface implementation
+// for Resource struct
 func (r Resource) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r.Encode())
 }
@@ -109,6 +111,8 @@ func (l Link) Encode() map[string]interface{} {
 	}
 }
 
+// MarshalJSON is a Marshaler interface implementation
+// for Link struct
 func (l Link) MarshalJSON() ([]byte, error) {
 	return json.Marshal(l.Encode())
 }
