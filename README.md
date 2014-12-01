@@ -5,64 +5,62 @@ Go implementation of [HAL standard](http://stateless.co/hal_specification.html).
 
 This is a work in progress... Everything might/will change.
 
-Examples
---------
+Usage
+-----
 
-Basic marshaling:
+Gohal gives a way to translate structs/objects/entities/resources into HAL-Json format.
+
+It provides the interface HalEncoder which, when implemented by a struct, returns json.Marshal-friendly structure:
 
 ```go
-package main
+type HalEncoder interface {
+	Encode() map[string]interface{}
+}
+```
 
-import (
-	"encoding/json"
-	"fmt"
-	"github.com/nvellon/gohal"
-)
+For a given Product struct:
 
+```go
 type Product struct {
-	gohal.Resource
-	Name string `json:"name"`
+	Code int
+	Name string
+	Price int
 }
+```
 
-type Category struct {
-	gohal.Resource
-	Name string `json:"name"`
-}
+Implementint the HalEncoder interface:
 
-func (p *Product) ToResource(b []byte) error {
-	return nil
-}
-func (p *Product) ToMap() map[string]interface{} {
-	return nil
-}
-
-func (c *Category) ToResource(b []byte) error {
-	return nil
-}
-func (c *Category) ToMap() map[string]interface{} {
-	return nil
-}
-
-func main() {
-
-	p := Product{}
-	p.Name = "some product"
-
-	lp := gohal.NewLink("self", "http://localhost/products/some_product")
-	p.AddLink(&lp)
-
-	c := Category{}
-	c.Name = "some category"
-	lc := gohal.NewLink("self", "http://localhost/categories/some_category")
-	c.AddLink(&lc)
-
-	p.Embed(&c)
-
-	j, err := json.Marshal(p)
-	if err != nil {
-		fmt.Printf("%s", err)
+```go
+func (p Product) Encode() map[string]interface{} {
+	return map[string]interface{}{
+		"name":  p.Name,
+		"price": p.Price,
 	}
-
-	fmt.Printf("%s", j)
 }
+```
+
+This way you define which fields you want translated and which ones not (notice "Code" is not there).
+
+Then you can just create a HAL Resource for a Product object by:
+
+```go
+p := Product{1, "Some Product", 10}
+
+pr := gohal.NewResource(p, "http://rest.api/products/some_product")
+```
+
+And when you need the Json encoded, you can do json.Marsal:
+
+```go
+j, err := json.Marshal(&pr)
+if err != nil {
+	fmt.Printf("%s", err)
+}
+
+fmt.Printf("%s", j)
+```
+
+Output:
+```json
+{"_links":[{"self":{"href":"http://rest.api/products/some_product"}}],"name":"Some product", "price": 10}
 ```
