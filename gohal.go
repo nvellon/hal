@@ -73,7 +73,16 @@ func (r Resource) Encode() map[string]interface{} {
 		mapped[k] = v
 	}
 
-	mapped["_links"] = r.Links
+	ml := make(map[string]interface{})
+
+	for _, link := range r.Links {
+		el := link.Encode()
+		for rel, l := range el {
+			ml[rel] = l
+		}
+	}
+
+	mapped["_links"] = ml
 
 	if len(r.Embedded) > 0 {
 		mapped["_embedded"] = r.Embedded

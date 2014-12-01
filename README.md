@@ -63,9 +63,9 @@ fmt.Printf("%s", j)
 Output:
 ```json
 {
-	"_links": [
-		{"self": {"href":"http://rest.api/products/some_product"}}
-	],
+	"_links": {
+		"self": {"href": "http://rest.api/products/some_product"}
+	},
 	"name": "Some product",
 	"price": 10
 }
