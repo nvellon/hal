@@ -1,6 +1,8 @@
 Gohal
 =====
 
+[![GoDoc](https://godoc.org/github.com/nvellon/gohal?status.svg)](https://godoc.org/github.com/nvellon/gohal)
+
 Go implementation of [HAL standard](http://stateless.co/hal_specification.html).
 
 This is a work in progress... Everything might/will change.
