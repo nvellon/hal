@@ -23,11 +23,11 @@ type (
 		GetMap() Entry
 	}
 
-	// Link is a struct that stores a hyperlink data.
-	Link struct {
-		Rel  string
-		Href string
-	}
+	// Link types that store hyperlinks and its attributes.
+	LinkAttr       map[string]string
+	Link           LinkAttr
+	LinkRel        string
+	LinkCollection map[LinkRel]Link
 
 	// Resource is a struct that stores a resource data.
 	// It represents a converted object in the HAL spec by
@@ -35,7 +35,7 @@ type (
 	// and a sub-set of recursively related resources.
 	Resource struct {
 		Payload  Mapper
-		Links    []*Link
+		Links    LinkCollection
 		Embedded []*Resource
 	}
 )
@@ -46,6 +46,7 @@ func NewResource(p Mapper, selfUri string) *Resource {
 	var r Resource
 
 	r.Payload = p
+	r.Links = make(LinkCollection)
 
 	r.AddNewLink("self", selfUri)
 
@@ -53,14 +54,14 @@ func NewResource(p Mapper, selfUri string) *Resource {
 }
 
 // AddLink appends a Link to the resource.
-func (r *Resource) AddLink(l *Link) {
-	r.Links = append(r.Links, l)
+func (r *Resource) AddLink(rel LinkRel, l Link) {
+	r.Links[rel] = l
 }
 
 // AddNewLink appends a new Link object based on
 // the rel and href params.
-func (r *Resource) AddNewLink(rel, href string) {
-	r.AddLink(NewLink(rel, href))
+func (r *Resource) AddNewLink(rel LinkRel, href string) {
+	r.AddLink(rel, NewLink(href, nil))
 }
 
 // Embed appends a Resource to the array of
@@ -79,16 +80,7 @@ func (r Resource) GetMap() Entry {
 		mapped[k] = v
 	}
 
-	ml := make(Entry)
-
-	for _, link := range r.Links {
-		el := link.GetMap()
-		for rel, l := range el {
-			ml[rel] = l
-		}
-	}
-
-	mapped["_links"] = ml
+	mapped["_links"] = r.Links
 
 	if len(r.Embedded) > 0 {
 		mapped["_embedded"] = r.Embedded
@@ -104,24 +96,14 @@ func (r Resource) MarshalJSON() ([]byte, error) {
 }
 
 // NewLink returns a new Link object.
-func NewLink(rel, href string) *Link {
-	return &Link{
-		Rel:  rel,
-		Href: href,
-	}
-}
+func NewLink(href string, attr LinkAttr) Link {
+	l := make(Link)
 
-// Map implements the interface Mapper.
-func (l Link) GetMap() Entry {
-	return Entry{
-		l.Rel: Entry{
-			"href": l.Href,
-		},
-	}
-}
+	l["href"] = href
 
-// MarshalJSON is a Marshaler interface implementation
-// for Link struct
-func (l Link) MarshalJSON() ([]byte, error) {
-	return json.Marshal(l.GetMap())
+	for k, v := range attr {
+		l[k] = v
+	}
+
+	return l
 }
