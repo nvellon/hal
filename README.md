@@ -1,5 +1,5 @@
-Gohal
-=====
+Hal
+===
 
 [![GoDoc](https://godoc.org/github.com/nvellon/hal?status.svg)](https://godoc.org/github.com/nvellon/hal)
 
@@ -10,13 +10,13 @@ This is a work in progress... Everything might/will change.
 Usage
 -----
 
-Gohal gives a way to translate structs/objects/entities/resources into HAL-Json format.
+Gohal gives a way to translate structs/objects/entities/resources into HAL format, which can be easily translated into Json or Xml.
 
-It provides the interface HalEncoder which, when implemented by a struct, returns json.Marshal-friendly structure:
+It provides the interface Mapper which, when implemented by a struct, returns Json/Xml Marshaler-friendly structure:
 
 ```go
-type HalEncoder interface {
-	Encode() map[string]interface{}
+type Mapper interface {
+	GetMap() Entry
 }
 ```
 
@@ -33,8 +33,8 @@ type Product struct {
 Implementint the HalEncoder interface:
 
 ```go
-func (p Product) Encode() map[string]interface{} {
-	return map[string]interface{}{
+func (p Product) GetMap() hal.Entry {
+	return hal.Entry{
 		"name":  p.Name,
 		"price": p.Price,
 	}
