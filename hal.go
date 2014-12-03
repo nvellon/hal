@@ -35,31 +35,37 @@ type (
 	// and a sub-set of recursively related resources.
 	Resource struct {
 		Payload  Mapper
-		Links    []Link
-		Embedded []Resource
+		Links    []*Link
+		Embedded []*Resource
 	}
 )
 
 // NewResource creates a Resource object for a given struct
 // and its link.
-func NewResource(p Mapper, selfUri string) Resource {
+func NewResource(p Mapper, selfUri string) *Resource {
 	var r Resource
 
 	r.Payload = p
 
-	r.AddLink(NewLink("self", selfUri))
+	r.AddNewLink("self", selfUri)
 
-	return r
+	return &r
 }
 
 // AddLink appends a Link to the resource.
-func (r *Resource) AddLink(l Link) {
+func (r *Resource) AddLink(l *Link) {
 	r.Links = append(r.Links, l)
+}
+
+// AddNewLink appends a new Link object based on
+// the rel and href params.
+func (r *Resource) AddNewLink(rel, href string) {
+	r.AddLink(NewLink(rel, href))
 }
 
 // Embed appends a Resource to the array of
 // embedded resources.
-func (r *Resource) Embed(er Resource) {
+func (r *Resource) Embed(er *Resource) {
 	r.Embedded = append(r.Embedded, er)
 }
 
@@ -98,8 +104,11 @@ func (r Resource) MarshalJSON() ([]byte, error) {
 }
 
 // NewLink returns a new Link object.
-func NewLink(rel, href string) Link {
-	return Link{rel, href}
+func NewLink(rel, href string) *Link {
+	return &Link{
+		Rel:  rel,
+		Href: href,
+	}
 }
 
 // Map implements the interface Mapper.
