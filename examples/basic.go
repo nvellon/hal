@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nvellon/gohal"
+	"github.com/nvellon/hal"
 )
 
 type (
@@ -20,32 +20,41 @@ type (
 	}
 )
 
-func (p Product) Encode() map[string]interface{} {
-	return map[string]interface{}{
+func (p Product) GetMap() hal.Entry {
+	return hal.Entry{
 		"name":  p.Name,
 		"price": p.Price,
 	}
 }
 
-func (c Category) Encode() map[string]interface{} {
-	return map[string]interface{}{
+func (c Category) GetMap() hal.Entry {
+	return hal.Entry{
 		"name": c.Name,
 	}
 }
 
 func main() {
-	c := Category{1, "Some Category"}
-	p := Product{1, "Some Product", 10, c}
+	c := Category{
+		Code: 1,
+		Name: "Some Category",
+	}
+
+	p := Product{
+		Code:     1,
+		Name:     "Some Product",
+		Price:    10,
+		Category: c,
+	}
 
 	// Creating HAL Resources
-	pr := gohal.NewResource(p, "http://some_host/products/some_product")
-	cr := gohal.NewResource(p.Category, "http://some_host/categories/some_category")
+	pr := hal.NewResource(p, "/products/1")
+	cr := hal.NewResource(p.Category, "/categories/1")
 
 	// Embeding category into product
 	pr.Embed(cr)
 
 	// JSON Encoding
-	j, err := json.Marshal(&pr)
+	j, err := json.MarshalIndent(pr, "", "  ")
 	if err != nil {
 		fmt.Printf("%s", err)
 	}

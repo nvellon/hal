@@ -1,7 +1,7 @@
 Gohal
 =====
 
-[![GoDoc](https://godoc.org/github.com/nvellon/gohal?status.svg)](https://godoc.org/github.com/nvellon/gohal)
+[![GoDoc](https://godoc.org/github.com/nvellon/hal?status.svg)](https://godoc.org/github.com/nvellon/hal)
 
 Go implementation of [HAL standard](http://stateless.co/hal_specification.html).
 
@@ -48,7 +48,7 @@ Then you can just create a HAL Resource for a Product object by:
 ```go
 p := Product{1, "Some Product", 10}
 
-pr := gohal.NewResource(p, "http://rest.api/products/some_product")
+pr := hal.NewResource(p, "http://rest.api/products/some_product")
 ```
 
 And when you need the Json encoded, you can do json.Marsal:
