@@ -46,15 +46,19 @@ This way you define which fields you want translated and which ones not (notice 
 Then you can just create a HAL Resource for a Product object by:
 
 ```go
-p := Product{1, "Some Product", 10}
+p := Product{
+	Code: 1,
+	Name: "Some Product",
+	Price: 10
+}
 
-pr := hal.NewResource(p, "http://rest.api/products/some_product")
+pr := hal.NewResource(p, "http://rest.api/products/1")
 ```
 
 And when you need the Json encoded, you can do json.Marsal:
 
 ```go
-j, err := json.Marshal(&pr)
+j, err := json.MarshalIndent(pr, "", "  ")
 if err != nil {
 	fmt.Printf("%s", err)
 }
@@ -66,7 +70,7 @@ Output:
 ```json
 {
 	"_links": {
-		"self": {"href": "http://rest.api/products/some_product"}
+		"self": {"href": "http://rest.api/products/1"}
 	},
 	"name": "Some product",
 	"price": 10
