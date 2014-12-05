@@ -30,7 +30,7 @@ type Product struct {
 }
 ```
 
-Implementint the HalEncoder interface:
+Implementint the Mapper interface:
 
 ```go
 func (p Product) GetMap() hal.Entry {
