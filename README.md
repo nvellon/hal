@@ -10,7 +10,7 @@ This is a work in progress... Everything might/will change.
 Usage
 -----
 
-Gohal gives a way to translate structs/objects/entities/resources into HAL format, which can be easily translated into Json or Xml.
+Gohal gives a way to translate structs into HAL format, which can be easily translated into Json or Xml.
 
 It provides the interface Mapper which, when implemented by a struct, returns Json/Xml Marshaler-friendly structure:
 
