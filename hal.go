@@ -44,6 +44,31 @@ type (
 	Embedded map[Relation][]*Resource
 )
 
+// Add appends the resource into the list of embedded
+// resources with the specified relation.
+func (e Embedded) Add(rel Relation, r *Resource) {
+	e[rel] = append(e[rel], r)
+}
+
+// Set sets the resource into the list of embedded
+// resources with the specified relation. It replaces
+// any existing resources associated with the relation.
+func (e Embedded) Set(rel Relation, r *Resource) {
+	e[rel] = []*Resource{r}
+}
+
+// Get gets the resources associated with the
+// given relation.
+func (e Embedded) Get(rel Relation) []*Resource {
+	return e[rel]
+}
+
+// Del deletes the resources associated with the
+// given relation.
+func (e Embedded) Del(rel Relation) {
+	delete(e, rel)
+}
+
 // NewResource creates a Resource object for a given struct
 // and its link.
 func NewResource(p Mapper, selfUri string) *Resource {
@@ -68,31 +93,6 @@ func (r *Resource) AddLink(rel Relation, l Link) {
 // the rel and href params.
 func (r *Resource) AddNewLink(rel Relation, href string) {
 	r.AddLink(rel, NewLink(href, nil))
-}
-
-// Add appends the resource into the list of embedded
-// resources with the specified relation.
-func (e Embedded) Add(rel Relation, r *Resource) {
-	e[rel] = append(e[rel], r)
-}
-
-// Set sets the resource into the list of embedded
-// resources with the specified relation. It replaces
-// any existing resources associated with the relation.
-func (e Embedded) Set(rel Relation, r *Resource) {
-	e[rel] = []*Resource{r}
-}
-
-// Get gets the resources associated with the
-// given relation.
-func (e Embedded) Get(rel Relation) []*Resource {
-	return e[rel]
-}
-
-// Del deletes the resources associated with the
-// given relation.
-func (e Embedded) Del(rel Relation) {
-	delete(e, rel)
 }
 
 // Embed appends a Resource to the array of
