@@ -76,3 +76,8 @@ Output:
 	"price": 10
 }
 ```
+
+Todo
+----
+
+ * CURIEs support.
