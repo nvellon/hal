@@ -38,10 +38,10 @@ type (
 	Resource struct {
 		Payload  Mapper
 		Links    LinkRelations
-		Embedded map[Relation]ResourceCollection
+		Embedded Embedded
 	}
 
-	ResourceCollection []*Resource
+	Embedded map[Relation][]*Resource
 )
 
 // NewResource creates a Resource object for a given struct
@@ -54,7 +54,7 @@ func NewResource(p Mapper, selfUri string) *Resource {
 	r.Links = make(LinkRelations)
 	r.AddNewLink("self", selfUri)
 
-	r.Embedded = make(map[Relation]ResourceCollection)
+	r.Embedded = make(Embedded)
 
 	return &r
 }
@@ -70,10 +70,35 @@ func (r *Resource) AddNewLink(rel Relation, href string) {
 	r.AddLink(rel, NewLink(href, nil))
 }
 
+// Add appends the resource into the list of embedded
+// resources with the specified relation.
+func (e Embedded) Add(rel Relation, r *Resource) {
+	e[rel] = append(e[rel], r)
+}
+
+// Set sets the resource into the list of embedded
+// resources with the specified relation. It replaces
+// any existing resources associated with the relation.
+func (e Embedded) Set(rel Relation, r *Resource) {
+	e[rel] = []*Resource{r}
+}
+
+// Get gets the resources associated with the
+// given relation.
+func (e Embedded) Get(rel Relation) []*Resource {
+	return e[rel]
+}
+
+// Del deletes the resources associated with the
+// given relation.
+func (e Embedded) Del(rel Relation) {
+	delete(e, rel)
+}
+
 // Embed appends a Resource to the array of
 // embedded resources.
 func (r *Resource) Embed(rel Relation, er *Resource) {
-	r.Embedded[rel] = append(r.Embedded[rel], er)
+	r.Embedded.Add(rel, er)
 }
 
 // Map implements the interface Mapper.

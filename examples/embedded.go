@@ -50,10 +50,13 @@ func main() {
 	pr := hal.NewResource(p, "/products/1")
 	cr1 := hal.NewResource(p.Category, "/categories/1")
 	cr2 := hal.NewResource(p.Category, "/categories/2")
+	cr3 := hal.NewResource(p.Category, "/categories/3")
 
 	// Embeding categories into product
 	pr.Embed("categories", cr1)
-	pr.Embed("categories", cr2)
+	pr.Embedded.Set("categories", cr2)
+	pr.Embedded.Add("categories", cr3)
+	pr.Embedded.Del("categories")
 
 	// JSON Encoding
 	j, err := json.MarshalIndent(pr, "", "  ")
