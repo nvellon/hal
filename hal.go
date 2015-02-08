@@ -23,11 +23,13 @@ type (
 		GetMap() Entry
 	}
 
+	Relation string
+
 	// Link types that store hyperlinks and its attributes.
 	LinkAttr       map[string]string
 	Link           LinkAttr
-	LinkRel        string
-	LinkCollection map[LinkRel]Link
+	LinkCollection []Link
+	LinkRelations  map[Relation]LinkCollection
 
 	// Resource is a struct that stores a resource data.
 	// It represents a converted object in the HAL spec by
@@ -35,9 +37,11 @@ type (
 	// and a sub-set of recursively related resources.
 	Resource struct {
 		Payload  Mapper
-		Links    LinkCollection
-		Embedded []*Resource
+		Links    LinkRelations
+		Embedded map[Relation]ResourceCollection
 	}
+
+	ResourceCollection []*Resource
 )
 
 // NewResource creates a Resource object for a given struct
@@ -46,28 +50,30 @@ func NewResource(p Mapper, selfUri string) *Resource {
 	var r Resource
 
 	r.Payload = p
-	r.Links = make(LinkCollection)
 
+	r.Links = make(LinkRelations)
 	r.AddNewLink("self", selfUri)
+
+	r.Embedded = make(map[Relation]ResourceCollection)
 
 	return &r
 }
 
 // AddLink appends a Link to the resource.
-func (r *Resource) AddLink(rel LinkRel, l Link) {
-	r.Links[rel] = l
+func (r *Resource) AddLink(rel Relation, l Link) {
+	r.Links[rel] = append(r.Links[rel], l)
 }
 
 // AddNewLink appends a new Link object based on
 // the rel and href params.
-func (r *Resource) AddNewLink(rel LinkRel, href string) {
+func (r *Resource) AddNewLink(rel Relation, href string) {
 	r.AddLink(rel, NewLink(href, nil))
 }
 
 // Embed appends a Resource to the array of
 // embedded resources.
-func (r *Resource) Embed(er *Resource) {
-	r.Embedded = append(r.Embedded, er)
+func (r *Resource) Embed(rel Relation, er *Resource) {
+	r.Embedded[rel] = append(r.Embedded[rel], er)
 }
 
 // Map implements the interface Mapper.
