@@ -10,7 +10,7 @@ This is a work in progress... Everything might/will change.
 Usage
 -----
 
-Gohal gives a way to translate structs into HAL format, which can be easily translated into Json or Xml.
+This lib gives a way to translate structs into HAL format, which can be easily translated into Json or Xml.
 
 It provides the interface Mapper which, when implemented by a struct, returns Json/Xml Marshaler-friendly structure:
 
@@ -30,7 +30,7 @@ type Product struct {
 }
 ```
 
-Implementint the Mapper interface:
+Implementing the Mapper interface:
 
 ```go
 func (p Product) GetMap() hal.Entry {
