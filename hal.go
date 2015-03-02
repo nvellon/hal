@@ -56,17 +56,12 @@ func (e Embedded) AddCollection(rel Relation, r ResourceCollection) {
 		return
 	}
 
-	nr, isExistingResource := n.(*Resource)
-	nc, isExistingCollection := n.([]*Resource)
-
-	if isExistingCollection {
-		//existing collection
+	if nc, ok := n.([]*Resource); ok {
 		e[rel] = append(nc, r...)
 		return
 	}
 
-	if isExistingResource {
-		//single resource - turn it into a collection
+	if nr, ok := n.(*Resource); ok {
 		e[rel] = append([]*Resource{nr}, r...)
 	}
 
@@ -83,26 +78,18 @@ func (e Embedded) Add(rel Relation, r *Resource) {
 		return
 	}
 
-	nee, isExistingResource := n.(*Resource)
-	nec, isExistingCollection := n.([]*Resource)
-
-	if isExistingCollection {
-		//existing collection
-		nec = append(nec, r)
-		e[rel] = nec
+	if nec, ok := n.([]*Resource); ok {
+		e[rel] = append(nec, r)
 		return
 	}
 
-	if isExistingResource {
-		//existing resource with same rel - turn it into a collection
-		resources := []*Resource{nee}
-		resources = append(resources, r)
-		e[rel] = resources
-	} else {
-		//something went wrong.. replace what is there with what is new
-		resources := []*Resource{r}
-		e[rel] = resources
+	if nee, ok := n.(*Resource); ok {
+		e[rel] = append([]*Resource{nee}, r)
+		return
 	}
+
+	//something went wrong.. replace what is there with what is new
+	e[rel] = []*Resource{r}
 }
 
 // Set sets the resource into the list of embedded
@@ -158,20 +145,15 @@ func (r *Resource) AddLinkCollection(rel Relation, l LinkCollection) {
 		return
 	}
 
-	nl, isExistingLink := n.(Link)
-	nc, isExistingCollection := n.(LinkCollection)
-
-	if isExistingCollection {
-		//existing collection
+	if nc, ok := n.(LinkCollection); ok {
 		r.Links[rel] = append(nc, l...)
 		return
 	}
 
-	if isExistingLink {
+	if nl, ok := n.(Link); ok {
 		//prepend existing link to collection
 		r.Links[rel] = append(LinkCollection{nl}, l...)
 	}
-
 }
 
 // AddLink appends a Link to the resource.
@@ -184,23 +166,18 @@ func (r *Resource) AddLink(rel Relation, l Link) {
 		return
 	}
 
-	nl, isExistingLink := n.(Link)
-	nc, isExistingCollection := n.(LinkCollection)
-
-	if isExistingCollection {
-		//existing collection
-		nc = append(nc, l)
-		r.Links[rel] = nc
+	if nc, ok := n.(LinkCollection); ok {
+		r.Links[rel] = append(nc, l)
 		return
 	}
 
-	if isExistingLink {
-		//existing link with same rel - turn it into a collection
+	if nl, ok := n.(Link); ok {
 		r.Links[rel] = append(LinkCollection{nl}, l)
-	} else {
-		//something went wrong.. replace what is there with what is new
-		r.Links[rel] = LinkCollection{l}
+		return
 	}
+
+	//something went wrong.. replace what is there with what is new
+	r.Links[rel] = LinkCollection{l}
 }
 
 // AddNewLink appends a new Link object based on
