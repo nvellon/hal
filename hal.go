@@ -26,10 +26,11 @@ type (
 	Relation string
 
 	// Link types that store hyperlinks and its attributes.
-	LinkAttr       map[string]string
-	Link           LinkAttr
-	LinkCollection []Link
-	LinkRelations  map[Relation]LinkCollection
+	LinkAttr           map[string]string
+	Link               LinkAttr
+	LinkCollection     []Link
+	ResourceCollection []*Resource
+	LinkRelations      map[Relation]interface{}
 
 	// Resource is a struct that stores a resource data.
 	// It represents a converted object in the HAL spec by
@@ -41,27 +42,90 @@ type (
 		Embedded Embedded
 	}
 
-	Embedded map[Relation][]*Resource
+	Embedded map[Relation]interface{}
 )
+
+// AddCollection appends the resource into the list of embedded
+// resources with the specified relation.
+// r should be  a ResourceCollection
+func (e Embedded) AddCollection(rel Relation, r ResourceCollection) {
+	n := e[rel]
+	if n == nil {
+		//new embed
+		e[rel] = r
+		return
+	}
+
+	nr, isExistingResource := n.(*Resource)
+	nc, isExistingCollection := n.([]*Resource)
+
+	if isExistingCollection {
+		//existing collection
+		e[rel] = append(nc, r...)
+		return
+	}
+
+	if isExistingResource {
+		//single resource - turn it into a collection
+		e[rel] = append([]*Resource{nr}, r...)
+	}
+
+}
 
 // Add appends the resource into the list of embedded
 // resources with the specified relation.
+// r should be a Resource
 func (e Embedded) Add(rel Relation, r *Resource) {
-	e[rel] = append(e[rel], r)
+	n := e[rel]
+	if n == nil {
+		//new embed
+		e[rel] = r
+		return
+	}
+
+	nee, isExistingResource := n.(*Resource)
+	nec, isExistingCollection := n.([]*Resource)
+
+	if isExistingCollection {
+		//existing collection
+		nec = append(nec, r)
+		e[rel] = nec
+		return
+	}
+
+	if isExistingResource {
+		//existing resource with same rel - turn it into a collection
+		resources := []*Resource{nee}
+		resources = append(resources, r)
+		e[rel] = resources
+	} else {
+		//something went wrong.. replace what is there with what is new
+		resources := []*Resource{r}
+		e[rel] = resources
+	}
 }
 
 // Set sets the resource into the list of embedded
 // resources with the specified relation. It replaces
 // any existing resources associated with the relation.
+// r should be a pointer to a Resource
 func (e Embedded) Set(rel Relation, r *Resource) {
-	e[rel] = []*Resource{r}
+	e[rel] = r
+}
+
+// Set sets the resource into the list of embedded
+// resources with the specified relation. It replaces
+// any existing resources associated with the relation.
+// r should be a ResourceCollection
+func (e Embedded) SetCollection(rel Relation, r ResourceCollection) {
+	e[rel] = r
 }
 
 // Get gets the resources associated with the
 // given relation.
-func (e Embedded) Get(rel Relation) []*Resource {
-	return e[rel]
-}
+//func (e Embedded) Get(rel Relation) []*Resource {
+//	return e[rel]
+//}
 
 // Del deletes the resources associated with the
 // given relation.
@@ -84,9 +148,59 @@ func NewResource(p Mapper, selfUri string) *Resource {
 	return &r
 }
 
+// AddLinkCollection appends a LinkCollection to the resource.
+// l should be a LinkCollection
+func (r *Resource) AddLinkCollection(rel Relation, l LinkCollection) {
+	n := r.Links[rel]
+	if n == nil {
+		//new link
+		r.Links[rel] = l
+		return
+	}
+
+	nl, isExistingLink := n.(Link)
+	nc, isExistingCollection := n.(LinkCollection)
+
+	if isExistingCollection {
+		//existing collection
+		r.Links[rel] = append(nc, l...)
+		return
+	}
+
+	if isExistingLink {
+		//prepend existing link to collection
+		r.Links[rel] = append(LinkCollection{nl}, l...)
+	}
+
+}
+
 // AddLink appends a Link to the resource.
+// l should be a Link
 func (r *Resource) AddLink(rel Relation, l Link) {
-	r.Links[rel] = append(r.Links[rel], l)
+	n := r.Links[rel]
+	if n == nil {
+		//new link
+		r.Links[rel] = l
+		return
+	}
+
+	nl, isExistingLink := n.(Link)
+	nc, isExistingCollection := n.(LinkCollection)
+
+	if isExistingCollection {
+		//existing collection
+		nc = append(nc, l)
+		r.Links[rel] = nc
+		return
+	}
+
+	if isExistingLink {
+		//existing link with same rel - turn it into a collection
+		r.Links[rel] = append(LinkCollection{nl}, l)
+	} else {
+		//something went wrong.. replace what is there with what is new
+		r.Links[rel] = LinkCollection{l}
+	}
 }
 
 // AddNewLink appends a new Link object based on
@@ -97,8 +211,16 @@ func (r *Resource) AddNewLink(rel Relation, href string) {
 
 // Embed appends a Resource to the array of
 // embedded resources.
-func (r *Resource) Embed(rel Relation, er *Resource) {
-	r.Embedded.Add(rel, er)
+// re should be a pointer to a Resource
+func (r *Resource) Embed(rel Relation, re *Resource) {
+	r.Embedded.Add(rel, re)
+}
+
+// EmbedCollection appends a ResourceCollection to the array of
+// embedded resources.
+// re should be a ResourceCollection
+func (r *Resource) EmbedCollection(rel Relation, re ResourceCollection) {
+	r.Embedded.AddCollection(rel, re)
 }
 
 // Map implements the interface Mapper.
