@@ -7,16 +7,10 @@ import (
 )
 
 type (
-	Category struct {
-		Code int
-		Name string
-	}
-
 	Product struct {
-		Code     int
-		Name     string
-		Price    int
-		Category Category
+		Code  int
+		Name  string
+		Price int
 	}
 )
 
@@ -27,31 +21,18 @@ func (p Product) GetMap() hal.Entry {
 	}
 }
 
-func (c Category) GetMap() hal.Entry {
-	return hal.Entry{
-		"name": c.Name,
-	}
-}
-
 func main() {
-	c := Category{
-		Code: 1,
-		Name: "Some Category",
-	}
-
 	p := Product{
-		Code:     1,
-		Name:     "Some Product",
-		Price:    10,
-		Category: c,
+		Code:  1,
+		Name:  "Some Product",
+		Price: 10,
 	}
 
 	// Creating HAL Resources
 	pr := hal.NewResource(p, "/products/1")
-	cr := hal.NewResource(p.Category, "/categories/1")
 
-	// Embeding category into product
-	pr.Embed(cr)
+	// Adding an extra link
+	pr.AddNewLink("help", "/docs")
 
 	// JSON Encoding
 	j, err := json.MarshalIndent(pr, "", "  ")
