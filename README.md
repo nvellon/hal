@@ -3,16 +3,14 @@ Hal
 
 [![GoDoc](https://godoc.org/github.com/nvellon/hal?status.svg)](https://godoc.org/github.com/nvellon/hal)
 
-Go implementation of [HAL standard](http://stateless.co/hal_specification.html).
+Go implementation of the [HAL standard](http://stateless.co/hal_specification.html).
 
 This is a work in progress... Everything might/will change.
 
 Usage
 -----
 
-This lib gives a way to translate structs into HAL format, which can be easily translated into Json or Xml.
-
-It provides the interface Mapper which, when implemented by a struct, returns Json/Xml Marshaler-friendly structure:
+The library gives a way of mapping Go Structs into HAL Resources by implementing the `hal.Mapper` interface. You only need to define which fields you want and how you want them translated.
 
 ```go
 type Mapper interface {
@@ -20,7 +18,7 @@ type Mapper interface {
 }
 ```
 
-For a given Product struct:
+For a given Product struct, this would be the `hal.Mapper` implementation:
 
 ```go
 type Product struct {
@@ -28,11 +26,7 @@ type Product struct {
 	Name string
 	Price int
 }
-```
 
-Implementing the Mapper interface:
-
-```go
 func (p Product) GetMap() hal.Entry {
 	return hal.Entry{
 		"name":  p.Name,
@@ -41,9 +35,7 @@ func (p Product) GetMap() hal.Entry {
 }
 ```
 
-This way you define which fields you want translated and which ones not (notice "Code" is not there).
-
-Then you can just create a HAL Resource for a Product object by:
+Then you can just create a HAL Resource for a Product by:
 
 ```go
 p := Product{
@@ -55,18 +47,8 @@ p := Product{
 pr := hal.NewResource(p, "http://rest.api/products/1")
 ```
 
-And when you need the Json encoded, you can do json.Marsal:
+And pass it through `json.Marsal` when needed getting this result:
 
-```go
-j, err := json.MarshalIndent(pr, "", "  ")
-if err != nil {
-	fmt.Printf("%s", err)
-}
-
-fmt.Printf("%s", j)
-```
-
-Output:
 ```json
 {
 	"_links": {
@@ -77,7 +59,98 @@ Output:
 }
 ```
 
+Embedded Resources
+------------------
+
+Let's say your API has to serve a list of Task structs.
+
+Since for HAL standard everything is a resource, even the entire API response could be seen as a resource containing other embedded resources. Check this out:
+
+```go
+type (
+	Response struct {
+		Count int
+		Total int
+	}
+
+	Task struct {
+		Id   int
+		Name string
+	}
+)
+
+func (p Response) GetMap() hal.Entry {
+	return hal.Entry{
+		"count": p.Count,
+		"total": p.Total,
+	}
+}
+
+func (c Task) GetMap() hal.Entry {
+	return hal.Entry{
+		"id":   c.Id,
+		"name": c.Name,
+	}
+}
+```
+
+Then you could create the Resources by doing something like this:
+
+```go
+// Creating Response resource
+r := hal.NewResource(Response{Count: 10, Total: 20}, "/tasks")
+r.AddNewLink("next", "/tasks=page=2")
+
+// Creating Task resources
+t1 := hal.NewResource(Task{Id: 1, Name: "Some Task"}, "/tasks/1")
+t2 := hal.NewResource(Task{Id: 2, Name: "Some Task"}, "/tasks/2")
+
+// Embedding
+r.Embed("tasks", t1)
+r.Embed("tasks", t2)
+```
+
+Output:
+
+```json
+{
+  "_embedded": {
+    "tasks": [
+      {
+        "_links": {
+          "self": {
+            "href": "/tasks/1"
+          }
+        },
+        "id": 1,
+        "name": "Some Task"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "/tasks/2"
+          }
+        },
+        "id": 2,
+        "name": "Some Task"
+      }
+    ]
+  },
+  "_links": {
+    "next": {
+      "href": "/tasks=page=2"
+    },
+    "self": {
+      "href": "/tasks"
+    }
+  },
+  "count": 10,
+  "total": 20
+}
+```
+
 Todo
 ----
 
  * CURIEs support.
+ * XML Marshaler.

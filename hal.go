@@ -26,11 +26,10 @@ type (
 	Relation string
 
 	// Link types that store hyperlinks and its attributes.
-	LinkAttr           map[string]string
-	Link               LinkAttr
-	LinkCollection     []Link
-	ResourceCollection []*Resource
-	LinkRelations      map[Relation]interface{}
+	LinkAttr       map[string]string
+	Link           LinkAttr
+	LinkCollection []Link
+	LinkRelations  map[Relation]interface{}
 
 	// Resource is a struct that stores a resource data.
 	// It represents a converted object in the HAL spec by
@@ -41,6 +40,7 @@ type (
 		Links    LinkRelations
 		Embedded Embedded
 	}
+	ResourceCollection []*Resource
 
 	Embedded map[Relation]interface{}
 )

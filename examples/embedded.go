@@ -54,9 +54,9 @@ func main() {
 
 	// Embeding categories into product
 	pr.Embed("categories", cr1)
+	pr.Embedded.Del("categories")
 	pr.Embedded.Set("categories", cr2)
 	pr.Embedded.Add("categories", cr3)
-	pr.Embedded.Del("categories")
 
 	// JSON Encoding
 	j, err := json.MarshalIndent(pr, "", "  ")
