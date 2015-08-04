@@ -3,3 +3,11 @@ sudo: false
 go:
   - 1.4
   - tip
+
+script:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+  - go test -v -covermode=count -coverprofile=coverage.out
+
+after_success:
+  - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken 7KSwPmJk8Bdo9LiAfETALzibWEnMYxGM2
