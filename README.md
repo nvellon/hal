@@ -1,6 +1,7 @@
 Hal
 ===
 
+[![Build Status](https://travis-ci.org/nvellon/hal.svg)](https://travis-ci.org/nvellon/hal)
 [![GoDoc](https://godoc.org/github.com/nvellon/hal?status.svg)](https://godoc.org/github.com/nvellon/hal)
 
 Go implementation of the [HAL standard](http://stateless.co/hal_specification.html).
