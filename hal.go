@@ -36,7 +36,7 @@ type (
 	// containing all its fields and also a set of related links
 	// and a sub-set of recursively related resources.
 	Resource struct {
-		Payload  Mapper
+		Payload  interface{}
 		Links    LinkRelations
 		Embedded Embedded
 	}
@@ -122,7 +122,7 @@ func (e Embedded) Del(rel Relation) {
 
 // NewResource creates a Resource object for a given struct
 // and its link.
-func NewResource(p Mapper, selfUri string) *Resource {
+func NewResource(p interface{}, selfUri string) *Resource {
 	var r Resource
 
 	r.Payload = p
@@ -201,10 +201,19 @@ func (r *Resource) EmbedCollection(rel Relation, re ResourceCollection) {
 }
 
 // Map implements the interface Mapper.
-func (r Resource) GetMap() Entry {
+func (r Resource) GetMap() (Entry, error) {
 	mapped := make(Entry)
 
-	mp := r.Payload.GetMap()
+	// Hack for composing payload with hal related data
+	jsonPayload, err := json.Marshal(r.Payload)
+	if err != nil {
+		return nil, err
+	}
+	var mp Entry
+	err = json.Unmarshal(jsonPayload, &mp)
+	if err != nil {
+		return nil, err
+	}
 
 	for k, v := range mp {
 		mapped[k] = v
@@ -216,13 +225,17 @@ func (r Resource) GetMap() Entry {
 		mapped["_embedded"] = r.Embedded
 	}
 
-	return mapped
+	return mapped, nil
 }
 
 // MarshalJSON is a Marshaler interface implementation
 // for Resource struct
 func (r Resource) MarshalJSON() ([]byte, error) {
-	return json.Marshal(r.GetMap())
+	entry, err := r.GetMap()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(entry)
 }
 
 // NewLink returns a new Link object.

@@ -3,23 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/nvellon/hal"
 )
 
 type (
 	Product struct {
-		Code  int
-		Name  string
-		Price int
+		Code  int    `json:"code"`
+		Name  string `json:"name"`
+		Price int    `json:"price"`
 	}
 )
-
-func (p Product) GetMap() hal.Entry {
-	return hal.Entry{
-		"name":  p.Name,
-		"price": p.Price,
-	}
-}
 
 func main() {
 	p := Product{
