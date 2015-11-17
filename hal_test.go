@@ -6,13 +6,7 @@ import (
 )
 
 type DummyStruct struct {
-	Name string
-}
-
-func (ds DummyStruct) GetMap() Entry {
-	return Entry{
-		"name": ds.Name,
-	}
+	Name string `json:"name"`
 }
 
 func TestNewResource(t *testing.T) {
