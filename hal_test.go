@@ -58,6 +58,33 @@ func TestResourceMarshal(t *testing.T) {
 	}
 }
 
+type DummyStructWithMapper struct {
+	Name string
+}
+
+func (dswm DummyStructWithMapper) GetMap() Entry {
+	return Entry{
+		"customName": dswm.Name,
+	}
+}
+
+func TestResourceMarshallWithMapper(t *testing.T) {
+	expected := `{"_links":{"self":{"href":"uri"}},"customName":"Dummy"}`
+
+	ds := DummyStructWithMapper{"Dummy"}
+
+	r := NewResource(ds, "uri")
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+	}
+}
+
 /* Test Links */
 func TestNewLink(t *testing.T) {
 	expected := `{"href":"bar","templated":"true"}`

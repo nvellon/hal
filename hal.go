@@ -18,6 +18,12 @@ import (
 type (
 	Entry map[string]interface{}
 
+	// Mapper is the interface implemented by the objects
+	// that can be converted into HAL format.
+	Mapper interface {
+		GetMap() Entry
+	}
+
 	Relation string
 
 	// Link types that store hyperlinks and its attributes.
@@ -199,7 +205,13 @@ func (r *Resource) EmbedCollection(rel Relation, re ResourceCollection) {
 func (r Resource) GetMap() Entry {
 	mapped := make(Entry)
 
-	mp := r.getPayloadMap()
+	var mp Entry
+	// Check if payload implements Mapper interface
+	if mapper, ok := r.Payload.(Mapper); ok {
+		mp = mapper.GetMap()
+	} else {
+		mp = r.getPayloadMap()
+	}
 
 	for k, v := range mp {
 		mapped[k] = v
@@ -217,7 +229,7 @@ func (r Resource) GetMap() Entry {
 func (r *Resource) getPayloadMap() Entry {
 
 	val := reflect.ValueOf(r.Payload)
-	payloadMap := make(map[string]interface{})
+	payloadMap := Entry{}
 
 	for i := 0; i < val.NumField(); i++ {
 
