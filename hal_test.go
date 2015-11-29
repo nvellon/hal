@@ -6,13 +6,7 @@ import (
 )
 
 type DummyStruct struct {
-	Name string
-}
-
-func (ds DummyStruct) GetMap() Entry {
-	return Entry{
-		"name": ds.Name,
-	}
+	Name string `json:"name"`
 }
 
 func TestNewResource(t *testing.T) {
@@ -51,6 +45,33 @@ func TestResourceMarshal(t *testing.T) {
 	expected := `{"_links":{"self":{"href":"uri"}},"name":"Dummy"}`
 
 	ds := DummyStruct{"Dummy"}
+
+	r := NewResource(ds, "uri")
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+	}
+}
+
+type DummyStructWithMapper struct {
+	Name string
+}
+
+func (dswm DummyStructWithMapper) GetMap() Entry {
+	return Entry{
+		"customName": dswm.Name,
+	}
+}
+
+func TestResourceMarshallWithMapper(t *testing.T) {
+	expected := `{"_links":{"self":{"href":"uri"}},"customName":"Dummy"}`
+
+	ds := DummyStructWithMapper{"Dummy"}
 
 	r := NewResource(ds, "uri")
 

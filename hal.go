@@ -12,6 +12,7 @@ package hal
 
 import (
 	"encoding/json"
+	"reflect"
 )
 
 type (
@@ -36,7 +37,7 @@ type (
 	// containing all its fields and also a set of related links
 	// and a sub-set of recursively related resources.
 	Resource struct {
-		Payload  Mapper
+		Payload  interface{}
 		Links    LinkRelations
 		Embedded Embedded
 	}
@@ -122,7 +123,7 @@ func (e Embedded) Del(rel Relation) {
 
 // NewResource creates a Resource object for a given struct
 // and its link.
-func NewResource(p Mapper, selfUri string) *Resource {
+func NewResource(p interface{}, selfUri string) *Resource {
 	var r Resource
 
 	r.Payload = p
@@ -204,7 +205,13 @@ func (r *Resource) EmbedCollection(rel Relation, re ResourceCollection) {
 func (r Resource) GetMap() Entry {
 	mapped := make(Entry)
 
-	mp := r.Payload.GetMap()
+	var mp Entry
+	// Check if payload implements Mapper interface
+	if mapper, ok := r.Payload.(Mapper); ok {
+		mp = mapper.GetMap()
+	} else {
+		mp = r.getPayloadMap()
+	}
 
 	for k, v := range mp {
 		mapped[k] = v
@@ -217,6 +224,30 @@ func (r Resource) GetMap() Entry {
 	}
 
 	return mapped
+}
+
+func (r *Resource) getPayloadMap() Entry {
+
+	val := reflect.ValueOf(r.Payload)
+	payloadMap := Entry{}
+
+	for i := 0; i < val.NumField(); i++ {
+
+		typeField := val.Type().Field(i)
+		tag := typeField.Tag
+		tagValue := tag.Get("json")
+		if tagValue != "-" {
+			valueField := val.Field(i)
+
+			if tagValue == "" {
+				tagValue = typeField.Name
+			}
+
+			payloadMap[tagValue] = valueField.Interface()
+		}
+	}
+
+	return payloadMap
 }
 
 // MarshalJSON is a Marshaler interface implementation
