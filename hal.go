@@ -27,7 +27,7 @@ type (
 	Relation string
 
 	// Link types that store hyperlinks and its attributes.
-	LinkAttr       map[string]string
+	LinkAttr       map[string]interface{}
 	Link           LinkAttr
 	LinkCollection []Link
 	LinkRelations  map[Relation]interface{}
