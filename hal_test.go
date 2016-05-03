@@ -87,9 +87,9 @@ func TestResourceMarshallWithMapper(t *testing.T) {
 
 /* Test Links */
 func TestNewLink(t *testing.T) {
-	expected := `{"href":"bar","templated":"true"}`
+	expected := `{"href":"bar","templated":true}`
 
-	l := NewLink("bar", LinkAttr{"templated": "true"})
+	l := NewLink("bar", LinkAttr{"templated": true})
 
 	jr, err := json.Marshal(l)
 	if err != nil {
