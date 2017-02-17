@@ -26,6 +26,11 @@ type (
 
 	Relation string
 
+	CurieHandle struct {
+		Name string
+		*Resource
+	}
+
 	// Link types that store hyperlinks and its attributes.
 	LinkAttr       map[string]interface{}
 	Link           LinkAttr
@@ -40,11 +45,19 @@ type (
 		Payload  interface{}
 		Links    LinkRelations
 		Embedded Embedded
+		Curies   []*CurieHandle
 	}
 	ResourceCollection []*Resource
 
 	Embedded map[Relation]interface{}
 )
+
+// AddNewLink adds a link to the resources_link collection
+// prepended with the curie Name
+func (c CurieHandle) AddNewLink(rel Relation, href string) {
+	rel = Relation(c.Name) + ":" + rel
+	c.Resource.AddLink(rel, NewLink(href, nil))
+}
 
 // AddCollection appends the resource into the list of embedded
 // resources with the specified relation.
@@ -132,6 +145,7 @@ func NewResource(p interface{}, selfUri string) *Resource {
 	r.AddNewLink("self", selfUri)
 
 	r.Embedded = make(Embedded)
+	r.Curies = make([]*CurieHandle, 0)
 
 	return &r
 }
@@ -185,6 +199,17 @@ func (r *Resource) AddLink(rel Relation, l Link) {
 // the rel and href params.
 func (r *Resource) AddNewLink(rel Relation, href string) {
 	r.AddLink(rel, NewLink(href, nil))
+}
+
+// RegisterCurie adds a Link relation of type 'curies' and returns a CurieHandle
+// to allow users to chain adding new links that have this curie relation definition
+func (r *Resource) RegisterCurie(name, href string, templated bool) *CurieHandle {
+	l := NewLink(href, LinkAttr{"name": name}, LinkAttr{"templated": templated})
+	r.AddLink("curies", l)
+	//r.Curies = append(r.Curies, l)
+	handle := &CurieHandle{Name: name, Resource: r}
+	r.Curies = append(r.Curies, handle)
+	return handle
 }
 
 // Embed appends a Resource to the array of
@@ -257,13 +282,15 @@ func (r Resource) MarshalJSON() ([]byte, error) {
 }
 
 // NewLink returns a new Link object.
-func NewLink(href string, attr LinkAttr) Link {
+func NewLink(href string, attrs ...LinkAttr) Link {
 	l := make(Link)
 
 	l["href"] = href
 
-	for k, v := range attr {
-		l[k] = v
+	for _, attr := range attrs {
+		for k, v := range attr {
+			l[k] = v
+		}
 	}
 
 	return l
