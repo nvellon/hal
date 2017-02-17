@@ -206,7 +206,7 @@ func (r *Resource) AddNewLink(rel Relation, href string) {
 func (r *Resource) RegisterCurie(name, href string, templated bool) *CurieHandle {
 	l := NewLink(href, LinkAttr{"name": name}, LinkAttr{"templated": templated})
 	r.AddLink("curies", l)
-	//r.Curies = append(r.Curies, l)
+
 	handle := &CurieHandle{Name: name, Resource: r}
 	r.Curies = append(r.Curies, handle)
 	return handle
