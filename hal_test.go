@@ -117,12 +117,31 @@ func TestNewLinkMultipleAttributes(t *testing.T) {
 }
 
 func TestRegisterCurie(t *testing.T) {
-	expected := `{"_links":{"curies":{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true},"doc:foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
+	expected := `{"_links":{"curies":[{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true}],"doc:foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
 
 	ds := DummyStruct{"Dummy"}
 
 	r := NewResource(ds, "uri")
 	r.RegisterCurie("doc", "http://haltalk.herokuapp.com/docs/{rel}", true).AddNewLink("foo", "bar")
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+	}
+}
+
+func TestRegisterMultipleCuries(t *testing.T) {
+	expected := `{"_links":{"curies":[{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true},{"href":"http://haltalk.herokuapp.com/abc/{rel}","name":"abc","templated":true}],"doc:foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
+
+	ds := DummyStruct{"Dummy"}
+
+	r := NewResource(ds, "uri")
+	r.RegisterCurie("doc", "http://haltalk.herokuapp.com/docs/{rel}", true).AddNewLink("foo", "bar")
+	r.RegisterCurie("abc", "http://haltalk.herokuapp.com/abc/{rel}", true)
 
 	jr, err := json.Marshal(r)
 	if err != nil {

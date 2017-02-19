@@ -204,8 +204,10 @@ func (r *Resource) AddNewLink(rel Relation, href string) {
 // RegisterCurie adds a Link relation of type 'curies' and returns a CurieHandle
 // to allow users to chain adding new links that have this curie relation definition
 func (r *Resource) RegisterCurie(name, href string, templated bool) *CurieHandle {
-	l := NewLink(href, LinkAttr{"name": name}, LinkAttr{"templated": templated})
-	r.AddLink("curies", l)
+	l := LinkCollection{
+		NewLink(href, LinkAttr{"name": name}, LinkAttr{"templated": templated}),
+	}
+	r.AddLinkCollection("curies", l)
 
 	handle := &CurieHandle{Name: name, Resource: r}
 	r.Curies = append(r.Curies, handle)
