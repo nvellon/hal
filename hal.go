@@ -45,7 +45,7 @@ type (
 		Payload  interface{}
 		Links    LinkRelations
 		Embedded Embedded
-		Curies   []*CurieHandle
+		Curies   map[string]*CurieHandle
 	}
 	ResourceCollection []*Resource
 
@@ -145,7 +145,7 @@ func NewResource(p interface{}, selfUri string) *Resource {
 	r.AddNewLink("self", selfUri)
 
 	r.Embedded = make(Embedded)
-	r.Curies = make([]*CurieHandle, 0)
+	r.Curies = make(map[string]*CurieHandle)
 
 	return &r
 }
@@ -202,7 +202,7 @@ func (r *Resource) AddNewLink(rel Relation, href string) {
 }
 
 // RegisterCurie adds a Link relation of type 'curies' and returns a CurieHandle
-// to allow users to chain adding new links that have this curie relation definition
+// to allow users to fluently add new links that have this curie relation definition
 func (r *Resource) RegisterCurie(name, href string, templated bool) *CurieHandle {
 	l := LinkCollection{
 		NewLink(href, LinkAttr{"name": name}, LinkAttr{"templated": templated}),
@@ -210,7 +210,8 @@ func (r *Resource) RegisterCurie(name, href string, templated bool) *CurieHandle
 	r.AddLinkCollection("curies", l)
 
 	handle := &CurieHandle{Name: name, Resource: r}
-	r.Curies = append(r.Curies, handle)
+
+	r.Curies[name] = handle
 	return handle
 }
 

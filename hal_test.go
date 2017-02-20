@@ -155,9 +155,10 @@ func TestRegisterMultipleCuries(t *testing.T) {
 
 func TestResourceCuries(t *testing.T) {
 	ds := DummyStruct{"Dummy"}
+	curieName := "doc"
 
 	r := NewResource(ds, "uri")
-	curie := r.RegisterCurie("doc", "http://haltalk.herokuapp.com/docs/{rel}", true)
+	curie := r.RegisterCurie(curieName, "http://haltalk.herokuapp.com/docs/{rel}", true)
 
 	curie.AddNewLink("foo", "bar")
 	curies := r.Curies
@@ -166,11 +167,11 @@ func TestResourceCuries(t *testing.T) {
 		t.Errorf("Wrong number of CurieHandles returned from resource:\n - Given: %v\n- Expected: %v\n", len(curies), 1)
 	}
 
-	if curies[0].Resource != r {
+	if curies[curieName].Resource != r {
 		t.Errorf("CurieHandle.Resource does not reference owning resource")
 	}
 
-	if curie != curies[0] {
+	if curie != curies[curieName] {
 		t.Errorf("curieHandle returned by RegisterCurie() is not the same reference")
 	}
 
