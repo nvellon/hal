@@ -178,7 +178,7 @@ Output
 		        "href":"http://acme.com/docs/{rel}",
 		        "templated":true
 		    }],
-		"acme:widgets": { "href: "http://rest.api/products/1/widgets" }
+		"acme:widgets": { "href": "http://rest.api/products/1/widgets" }
 	},
 	"name": "Some product",
 	"price": 10
