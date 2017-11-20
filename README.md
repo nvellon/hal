@@ -151,8 +151,54 @@ Output:
 }
 ```
 
+CURIES
+------
+To include CURIE relations in your output you can 'register' the curie name and fluently add a link relation as follows:
+
+```go
+p := Product{
+	Code: 1,
+	Name: "Some Product",
+	Price: 10
+}
+
+// Creating Product resource
+pr := hal.NewResource(p, "http://rest.api/products/1")
+pr.RegisterCurie("acme", "http://acme.com/docs/{rel}", true).AddNewLink("widgets", "http://rest.api/products/1/widgets")
+```
+
+Output
+
+```json
+{
+	"_links": {
+		"self": {"href": "http://rest.api/products/1"},
+		"curies": [{ 
+		        "name":"acme",
+		        "href":"http://acme.com/docs/{rel}",
+		        "templated":true
+		    }],
+		"acme:widgets": { "href": "http://rest.api/products/1/widgets" }
+	},
+	"name": "Some product",
+	"price": 10
+}
+```
+
+Registered curies can also be retreived by name from the resources' Curies map:
+
+
+```go
+pr := hal.NewResource(p, "http://rest.api/products/1")
+pr.RegisterCurie("acme", "http://acme.com/docs/{rel}", true)
+...
+
+curie := pr.Curies["acme"]
+curie.AddNewLink("widgets", "http://rest.api/products/1/widgets")
+```
+
+
 Todo
 ----
 
- * CURIEs support.
  * XML Marshaler.

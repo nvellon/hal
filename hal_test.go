@@ -101,6 +101,82 @@ func TestNewLink(t *testing.T) {
 	}
 }
 
+func TestNewLinkMultipleAttributes(t *testing.T) {
+	expected := `{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true}`
+
+	l := NewLink("http://haltalk.herokuapp.com/docs/{rel}", LinkAttr{"name": "doc"}, LinkAttr{"templated": true})
+
+	jr, err := json.Marshal(l)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong link struct: %s\n- Given: %s\n- Expected: %s", l, jr, expected)
+	}
+}
+
+func TestRegisterCurie(t *testing.T) {
+	expected := `{"_links":{"curies":[{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true}],"doc:foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
+
+	ds := DummyStruct{"Dummy"}
+
+	r := NewResource(ds, "uri")
+	r.RegisterCurie("doc", "http://haltalk.herokuapp.com/docs/{rel}", true).AddNewLink("foo", "bar")
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+	}
+}
+
+func TestRegisterMultipleCuries(t *testing.T) {
+	expected := `{"_links":{"curies":[{"href":"http://haltalk.herokuapp.com/docs/{rel}","name":"doc","templated":true},{"href":"http://haltalk.herokuapp.com/abc/{rel}","name":"abc","templated":true}],"doc:foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
+
+	ds := DummyStruct{"Dummy"}
+
+	r := NewResource(ds, "uri")
+	r.RegisterCurie("doc", "http://haltalk.herokuapp.com/docs/{rel}", true).AddNewLink("foo", "bar")
+	r.RegisterCurie("abc", "http://haltalk.herokuapp.com/abc/{rel}", true)
+
+	jr, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	if string(jr) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+	}
+}
+
+func TestResourceCuries(t *testing.T) {
+	ds := DummyStruct{"Dummy"}
+	curieName := "doc"
+
+	r := NewResource(ds, "uri")
+	curie := r.RegisterCurie(curieName, "http://haltalk.herokuapp.com/docs/{rel}", true)
+
+	curie.AddNewLink("foo", "bar")
+	curies := r.Curies
+
+	if len(curies) != 1 {
+		t.Errorf("Wrong number of CurieHandles returned from resource:\n - Given: %v\n- Expected: %v\n", len(curies), 1)
+	}
+
+	if curies[curieName].Resource != r {
+		t.Errorf("CurieHandle.Resource does not reference owning resource")
+	}
+
+	if curie != curies[curieName] {
+		t.Errorf("curieHandle returned by RegisterCurie() is not the same reference")
+	}
+
+}
+
 func TestAddNewLink(t *testing.T) {
 	expected := `{"_links":{"foo":{"href":"bar"},"self":{"href":"uri"}},"name":"Dummy"}`
 
