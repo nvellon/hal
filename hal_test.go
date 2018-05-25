@@ -341,3 +341,18 @@ func TestAddResourceCollectionToResource(t *testing.T) {
 		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
 	}
 }
+
+func TestOmitEmptyReflection(t *testing.T) {
+	expected := `{"_links":{"self":{"href":"test"}},"id":null}`
+	dummyStruct := struct {
+		ID *int `json:"id,omitempty"`
+	}{}
+	r := NewResource(dummyStruct,"test")
+	res, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	if string(res) != expected {
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, res, expected)
+	}
+}

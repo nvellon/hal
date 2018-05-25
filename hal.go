@@ -265,7 +265,6 @@ func (r *Resource) getPayloadMap() Entry {
 		tag := typeField.Tag
 		tagValue := tag.Get("json")
 		if strings.Contains(tagValue, "omitempty") {
-
 			l := strings.Split(tagValue, ",")
 			for i, el := range l {
 				if el == "omitempty" {
