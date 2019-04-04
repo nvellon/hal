@@ -1,7 +1,6 @@
 package hal
 
 import (
-	"encoding/json"
 	"testing"
 )
 
