@@ -1,6 +1,7 @@
 package hal
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -53,7 +54,7 @@ func TestResourceMarshal(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -80,7 +81,7 @@ func TestResourceMarshallWithMapper(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -129,7 +130,7 @@ func TestRegisterCurie(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -148,7 +149,7 @@ func TestRegisterMultipleCuries(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -190,7 +191,7 @@ func TestAddNewLink(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -209,7 +210,7 @@ func TestAddNewLinkTwice(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -227,7 +228,7 @@ func TestAddLinkCollection(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -246,7 +247,7 @@ func TestAddLinkCollectionToLink(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -267,7 +268,7 @@ func TestEmbed(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given: %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -290,7 +291,7 @@ func TestEmbedTwice(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -312,7 +313,7 @@ func TestAddResourceCollection(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -337,7 +338,7 @@ func TestAddResourceCollectionToResource(t *testing.T) {
 	}
 
 	if string(jr) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, jr, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), jr, expected)
 	}
 }
 
@@ -352,6 +353,6 @@ func TestOmitEmptyReflection(t *testing.T) {
 		t.Errorf("%s", err)
 	}
 	if string(res) != expected {
-		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", r, res, expected)
+		t.Errorf("Wrong Resource struct: %s\n- Given:    %s\n- Expected: %s", fmt.Sprint(r), res, expected)
 	}
 }
