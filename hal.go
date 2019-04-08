@@ -11,10 +11,12 @@
 package hal
 
 import (
-	"encoding/json"
+	"github.com/json-iterator/go"
 	"reflect"
 	"strings"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type (
 	Entry map[string]interface{}
